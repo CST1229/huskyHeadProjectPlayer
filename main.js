@@ -48,6 +48,7 @@ projectEl.className = "project dark plsload";
 	start.onclick = () => {
 		if (
 			projectEl.classList.contains("plsload") ||
+			projectEl.classList.contains("loading") ||
 			projectEl.classList.contains("loaderror")
 		) return;
 		projectEl.classList.remove("dark", "pressstart");
@@ -88,6 +89,9 @@ async function importProject(file) {
 async function loadScratch(id) {
 	if (!parseInt(id.toString())) return;
 	
+	projectEl.classList.remove("plsload", "pressstart", "loading", "loaderror");
+	projectEl.classList.add("loading", "dark");
+	
 	const projectMetadata = await (await fetch(`https://trampoline.turbowarp.org/proxy/projects/${id}`)).json();
 	const token = projectMetadata.project_token;
 	const projectData = await (await fetch(`https://projects.scratch.mit.edu/${id}?token=${token}`)).arrayBuffer();
@@ -97,7 +101,8 @@ async function loadScratch(id) {
 scaffolding.appendTo(projectEl);
 
 {
-	// Quantify the canvas!
+	// CANVAS QUANTIZATION //
+	// makes the canvas low quality
 	
 	// the vanilla canvas uses up the webgl context,
 	// but we want the 2d context so we can display the quantified image
@@ -129,7 +134,10 @@ scaffolding.appendTo(projectEl);
 		const can = this.canvas;
 		const imgData = getSRImageData(this);
 		
-		const q = new RgbQuant({colors: 16});
+		const q = new RgbQuant({
+			colors: 16,
+			dithKern: "FloydSteinberg",
+		});
 		q.sample(imgData);
 		const out = q.reduce(imgData);
 		
@@ -139,6 +147,38 @@ scaffolding.appendTo(projectEl);
 			new ImageData(Uint8ClampedArray.from(out), can.width, can.height),
 			0, 0
 		);
+		return returnValue;
+	};
+}
+
+{
+	// SOUND DEGRADATION //
+	// makes the sound low quality
+	
+	const SAMPLE_RESOLUTION = 7;
+	const SAMPLE_DIVIDER = 3;
+	
+	const ogDecodeSound = Scaffolding.AudioEngine.prototype._decodeSound;
+	// quite a hacky way to do it - modify the sound after it's decoded
+	Scaffolding.AudioEngine.prototype._decodeSound = async function(...args) {
+		const returnValue = await ogDecodeSound.apply(this, args);
+		
+		
+		const bfr = returnValue[1];
+		// thanks mdn
+		for (let channel = 0; channel < bfr.numberOfChannels; channel++) {
+			const nowBuffering = bfr.getChannelData(channel);
+			let sample = 0;
+			for (let i = 0; i < bfr.length; i++) {
+				// lower the sample rate
+				if (i % SAMPLE_DIVIDER === 0) {
+					// additionally, lower the samples' resolution
+					sample = Math.round(nowBuffering[i] * SAMPLE_RESOLUTION) / SAMPLE_RESOLUTION;
+				}
+				nowBuffering[i] = sample;
+			}
+		}
+		
 		return returnValue;
 	};
 }
