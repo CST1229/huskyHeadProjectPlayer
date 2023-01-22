@@ -10,11 +10,12 @@ jobs:
   build-site:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: '16'
       
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.ref_name }}
       
@@ -25,15 +26,15 @@ jobs:
         run: npm run build
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: built-site
           path: dist/
       
       - name: Checkout to build
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
-          ref: build
+          ref: 'build'
       
       - name: Create and go to branch folder if needed
         run: |
@@ -48,13 +49,13 @@ jobs:
           rm -rf ./${{ env.WORK_DIR }}index.html
 
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: built-site
           path: ./${{ env.WORK_DIR }}
       
       - name: Commit and push
-        uses: EndBug/add-and-commit@v8
+        uses: EndBug/add-and-commit@v9
         with:
           message: Build branch ${{ github.ref_name }}
           push: true
