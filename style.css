@@ -1,0 +1,103 @@
+:root {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.container {
+	width: 257px;
+	padding: 5px;
+	box-sizing: content-box;
+	
+	background-color: black;
+	color: white;
+	border-radius: 5px;
+}
+
+.container button {
+	background-color: #ddd;
+	border: outset 2px #ddd;
+	font-family: inherit;
+}
+.container button:active {
+	border-style: inset;
+}
+
+.container input {
+	background-color: #eee;
+	border: inset 2px #eee;
+	font-family: inherit;
+}
+
+.project {
+	width: 257px;
+	height: 179px;
+	position: relative;
+}
+.project.dark > * {
+	filter: brightness(0.5);
+}
+
+.project::after {
+	position: absolute;
+	text-align: center;
+	top: 50%;
+	transform: translateY(-50%);
+	
+	width: 100%;
+	
+	color: white;
+}
+.project.pressstart::after {
+	content: "Press Start";
+}
+.project.plsload::after {
+	content: "Load a project!";
+}
+.project.loading::after {
+	content: "Loading...";
+}
+.project.loaderror::after {
+	content: "Error loading project; see the browser console for more info";
+}
+
+.controls {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: center;
+	gap: 0.25em;
+	margin-bottom: 0.25em;
+}
+
+.controls * {
+	flex-shrink: 0;
+}
+
+.controls .grow {
+	flex-grow: 1;
+	flex-shrink: 1;
+}
+
+.file {
+	display: none;
+}
+
+.not-sc-canvas {
+	width: 100%;
+	height: 100%;
+	/* opengl has y at bottom
+	   i'll just be lazy and flip
+	   it using transforms */
+	transform: scaleY(-1);
+	/* ensure this canvas doesn't
+	   eat the vanilla one's inputs,
+	   even though it's behind it */
+	pointer-events: none;
+}
+.sc-canvas {
+	/* visibility: hidden seems to
+	   ignore mouse inputs */
+	opacity: 0;
+}
