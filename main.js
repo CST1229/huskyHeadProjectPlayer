@@ -155,8 +155,8 @@ scaffolding.appendTo(projectEl);
 	// SOUND DEGRADATION //
 	// makes the sound low quality
 	
-	const SAMPLE_RESOLUTION = 7;
-	const SAMPLE_DIVIDER = 3;
+	const SAMPLE_RESOLUTION = 15;
+	const SAMPLE_DIVIDER = 2;
 	
 	const ogDecodeSound = Scaffolding.AudioEngine.prototype._decodeSound;
 	// quite a hacky way to do it - modify the sound after it's decoded
